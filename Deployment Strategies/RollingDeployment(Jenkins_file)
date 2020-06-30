@@ -1,0 +1,120 @@
+node
+{
+    stage('De-Registering Server-A from target group')
+    {
+        try
+        {
+            sh label: '', script: 'aws elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:836096864812:targetgroup/tg-1/4a1bfa483be71014 --targets Id=i-02c124d70917e3860'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding De-Registering of Server-A', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    stage('Cloning Git Repository')
+    {
+        try
+        {
+            sh "echo Code cloning from Remote Repository"
+            git credentialsId: '49d45759-003f-4584-ae3e-86ae75dc55d3', 
+            url: 'https://github.com/PratapSingh13/Nginx.git'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Repository Cloning', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    stage('Code Copy Server-A')
+    {
+        try
+        {
+            sh'''
+            #!/bin/bash
+            scp -i /var/lib/jenkins/ASGKEY.pem /var/lib/jenkins/workspace/RollingDeployment/index.nginx-debian.html ubuntu@13.234.202.157:/tmp
+            ssh -i /var/lib/jenkins/ASGKEY.pem ubuntu@13.234.202.157 "sudo mv /tmp/index.nginx-debian.html /var/www/html; sudo chown root:root /var/www/html/index.nginx-debian.html"
+            ssh -i /var/lib/jenkins/ASGKEY.pem ubuntu@13.234.202.157 "sudo systemctl restart nginx"
+            '''
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Code Copy on Server-A', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    stage('Registering target-A on target group')
+    {
+        try
+        {
+            sh label: '', script: 'aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:836096864812:targetgroup/tg-1/4a1bfa483be71014 --targets Id=i-02c124d70917e3860'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Registering of Server-A', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    stage('De-Registering Server-B from target group')
+    {
+        try
+        {
+            sh label: '', script: 'aws elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:836096864812:targetgroup/tg-1/4a1bfa483be71014 --targets Id=i-0dd8bb69b6d81ce16'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding De-Registering of Server-B', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    stage('Code Copy Server-B')
+    {
+        try
+        {
+            sh'''
+            #!/bin/bash
+            scp -i /var/lib/jenkins/ASGKEY.pem /var/lib/jenkins/workspace/RollingDeployment/index.nginx-debian.html ubuntu@52.66.202.13:/tmp
+            ssh -i /var/lib/jenkins/ASGKEY.pem ubuntu@52.66.202.13 "sudo mv /tmp/index.nginx-debian.html /var/www/html; sudo chown root:root /var/www/html/index.nginx-debian.html"
+            ssh -i /var/lib/jenkins/ASGKEY.pem ubuntu@52.66.202.13 "sudo systemctl restart nginx"
+            '''
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Code Copy on Server-B', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    stage('Registering target-B on target group')
+    {
+        try
+        {
+            sh label: '', script: 'aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:836096864812:targetgroup/tg-1/4a1bfa483be71014 --targets Id=i-0dd8bb69b6d81ce16'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Registering of Server-B', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+}
