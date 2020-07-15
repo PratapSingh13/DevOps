@@ -1,0 +1,66 @@
+node
+{
+    stage('Init Terraform')
+    {
+        try
+        {
+            sh label: '', script: 'cd ../Terraform/ && terraform init'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Terraform Initialization', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    
+    stage('Plannig Terraform')
+    {
+        try
+        {
+            sh label: '', script: 'cd ../Terraform/ && terraform plan'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Terraform plan', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    
+    stage('Apply Terraform') {
+        input message: 'Press Yes to apply changes', ok: 'YES'
+        try
+        {
+            sh label: '', script: 'cd ../Terraform/ && terraform destroy -lock=false -auto-approve'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: '', 
+            subject: 'Regarding Terraform Apply', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+    
+    stage('Getting json')
+    {
+        try
+        {
+            sh label: '', script: 'cd ../dynamic-inventory/ && ./ec2.py --refresh-cache'
+        }
+        catch(Exception e)
+        {
+            emailext attachLog: true, 
+            body: 'Regarding JSON fetching', 
+            subject: 'Retrieving Data', 
+            to: 'yogendrapratapsingh70@gmail.com'
+            sh 'exit 1'
+        }
+    }
+}
