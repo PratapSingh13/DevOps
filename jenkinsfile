@@ -36,7 +36,7 @@ node
         input message: 'Press Yes to apply changes', ok: 'YES'
         try
         {
-            sh label: '', script: 'cd ../Terraform/ && terraform destroy -lock=false -auto-approve'
+            sh label: '', script: 'cd ../Terraform/ && terraform apply -lock=false -auto-approve'
         }
         catch(Exception e)
         {
