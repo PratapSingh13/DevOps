@@ -13,7 +13,6 @@ addingSecurityGroups()
 }
 
 
-
 security_groups_added=$1
 
 addingSecurityGroups $security_groups_added
